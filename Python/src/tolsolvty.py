@@ -1,4 +1,4 @@
-function [tolmax,argmax,envs,ccode] = tolsolvty(infA,supA,infb,supb,varargin)
+function [tolmax, argmax, envs, ccode] = tolsolvty(infA, supA, infb, supb, varargin)
 #
 #   Вычисление максимума распознающего функционала допускового множества
 #   решений для интервальной системы линейных алгебраических уравнений.
@@ -99,8 +99,8 @@ function [tolmax,argmax,envs,ccode] = tolsolvty(infA,supA,infb,supb,varargin)
 #   проверка корректности входных данных
 #
 
-mi = size(infA,1);  ni = size(infA,2)
-ms = size(supA,1);  ns = size(supA,2)
+mi = size(infA, 1);  ni = size(infA, 2)
+ms = size(supA, 1);  ns = size(supA, 2)
 if mi==ms   #   m - количество уравнений в системе
     m = ms
 else
@@ -112,8 +112,8 @@ else
     error('Количество столбцов в матрицах левых и правых концов неодинаково')
 end
 
-ki = size(infb,1)
-ks = size(supb,1)
+ki = size(infb, 1)
+ks = size(supb, 1)
 if ki==ks
     k = ks
 else
@@ -149,7 +149,7 @@ q2 = 1.1               #       шагового множителя
 
 iprn = 0               #   печать о ходе процесса через каждые iprn-итераций
                        #   (если iprn < 0, то печать подавляется)
-weight = ones(m,1)     #   задание вектора весовых коэффициентов для образующих
+weight = ones(m, 1)     #   задание вектора весовых коэффициентов для образующих
 format short g         #   формат вывода данных
 
 ################################################################################
@@ -168,7 +168,7 @@ if nargin >= 5
     iprn = ceil(varargin{1})
     if nargin >= 6
         weight = varargin{2}
-        if size(weight,1)~=m
+        if size(weight, 1)~=m
             error('Размер вектора весовых коэффициентов задан некорректно')
         end
         if any( weight <= 0 )
@@ -192,7 +192,7 @@ end
 ################################################################################
 ################################################################################
 
-function [f,g,tt] = calcfg(x)
+function [f, g, tt] = calcfg(x)
 #
 #   функция, которая вычисляет значение f максимизируемого распознающего
 #   функционала и его суперградиент g;  кроме того, она выдаёт вектор tt
@@ -244,7 +244,7 @@ maxsv = max(sv)
 if ( minsv~=0 && maxsv/minsv < 1.e+12 )
     x = Ac\bc
 else
-    x = zeros(n,1)
+    x = zeros(n, 1)
 end
 
 ################################################################################
@@ -254,8 +254,8 @@ end
 #       g, g0, g1 - используются для хранения вспомогательных векторов,
 #           суперградиента минимизируемого функционала и др.
 
-B = eye(n,n)                   #   инициализируем единичной матрицей
-vf = realmax*ones(nsims,1)     #   инициализируем самыми большими числами
+B = eye(n, n)                   #   инициализируем единичной матрицей
+vf = realmax*ones(nsims, 1)     #   инициализируем самыми большими числами
 
 ################################################################################
 #   установка начальных параметров
@@ -268,11 +268,11 @@ ff = f ;  xx = x
 cal = 1;  ncals = 1
 
 if iprn > 0
-    fprintf('\n\t#52s\n',TitLine)
-    fprintf('#65s\n',HorLine)
-    fprintf('\t#50s\n',TabLine)
-    fprintf('#65s\n',HorLine)
-    fprintf('\t#d\t#f\t#f\t#d\t#d\n',0,f,ff,cal,ncals)
+    fprintf('\n\t#52s\n', TitLine)
+    fprintf('#65s\n', HorLine)
+    fprintf('\t#50s\n', TabLine)
+    fprintf('#65s\n', HorLine)
+    fprintf('\t#d\t#f\t#f\t#d\t#d\n', 0, f, ff, cal, ncals)
 end
 
 ################################################################################
@@ -313,7 +313,7 @@ for itn = 1:maxitn
         end
         #   если прошло nh шагов одномерного подъёма,
         #   то увеличиваем величину шага hs
-        if mod(cal,nh) == 0
+        if mod(cal, nh) == 0
             hs = hs*q2
         end
         r = g'*g1
@@ -331,7 +331,7 @@ for itn = 1:maxitn
     #   уточняем статистику и при необходимости выводим её
     ncals = ncals + cal
     if itn==lp
-        fprintf('\t#d\t#f\t#f\t#d\t#d\n',itn,f,ff,cal,ncals)
+        fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
         lp = lp + iprn
     end
     #   если вариация аргумента в одномерном поиске мала, то выход
@@ -346,7 +346,7 @@ for itn = 1:maxitn
     g0 = g1
     #   проверка изменения значения функционала, относительного
     #   либо абсолютного, на последних nsims шагах алгоритма
-    vf = circshift(vf,1)
+    vf = circshift(vf, 1)
     vf(1) = abs(ff - vf(1))
     if abs(ff) > 1
         deltaf = sum(vf)/abs(ff)
@@ -365,17 +365,17 @@ argmax = xx
 
 #   сортируем образующие распознающего функционала по возрастанию
 tt = [(1:m)', tt]
-[z,ind] = sort(tt(:,2))
-envs = tt(ind,:)
+[z, ind] = sort(tt(:, 2))
+envs = tt(ind, :)
 
 ################################################################################
 #   вывод результатов работы
 
 if iprn > 0
-    if rem(itn,iprn)~=0
-        fprintf('\t#d\t#f\t#f\t#d\t#d\n',itn,f,ff,cal,ncals)
+    if rem(itn, iprn)~=0
+        fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
     end
-    fprintf('#65s\n',HorLine)
+    fprintf('#65s\n', HorLine)
 end
 
 ################################################################################
