@@ -101,12 +101,12 @@ function [tolmax, argmax, envs, ccode] = tolsolvty(infA, supA, infb, supb, varar
 
 mi = size(infA, 1);  ni = size(infA, 2)
 ms = size(supA, 1);  ns = size(supA, 2)
-if mi==ms   #   m - количество уравнений в системе
+if mi == ms   #   m - количество уравнений в системе
     m = ms
 else
     error('Количество строк в матрицах левых и правых концов неодинаково')
 end
-if ni==ns
+if ni == ns
     n = ns #   n - количество неизвестных переменных в системе
 else
     error('Количество столбцов в матрицах левых и правых концов неодинаково')
@@ -114,12 +114,12 @@ end
 
 ki = size(infb, 1)
 ks = size(supb, 1)
-if ki==ks
+if ki == ks
     k = ks
 else
     error('Количество компонент у векторов левых и правых концов неодинаково')
 end
-if k~=m
+if k != m
     error('Размеры матрицы системы не соответствуют размерам правой части')
 end
 
@@ -168,7 +168,7 @@ if nargin >= 5
     iprn = ceil(varargin{1})
     if nargin >= 6
         weight = varargin{2}
-        if size(weight, 1)~=m
+        if size(weight, 1) != m
             error('Размер вектора весовых коэффициентов задан некорректно')
         end
         if any( weight <= 0 )
@@ -233,16 +233,16 @@ end
 #   'средней' точечной системы, если она не слишком плохо обусловлена,
 #   иначе берём начальным приближением нулевой вектор
 #
-Ac = 0.5*(infA + supA)
-Ar = 0.5*(supA - infA)
-bc = 0.5*(infb + supb)
-br = 0.5*(supb - infb)
+Ac = 0.5 * (infA + supA)
+Ar = 0.5 * (supA - infA)
+bc = 0.5 * (infb + supb)
+br = 0.5 * (supb - infb)
 sv = svd(Ac)
 minsv = min(sv)
 maxsv = max(sv)
 
-if ( minsv~=0 && maxsv/minsv < 1.e+12 )
-    x = Ac\bc
+if ( minsv != 0 and maxsv / minsv < 1.e+12 )
+    x = Ac \ bc
 else
     x = zeros(n, 1)
 end
@@ -255,12 +255,12 @@ end
 #           суперградиента минимизируемого функционала и др.
 
 B = eye(n, n)                   #   инициализируем единичной матрицей
-vf = realmax*ones(nsims, 1)     #   инициализируем самыми большими числами
+vf = realmax * ones(nsims, 1)     #   инициализируем самыми большими числами
 
 ################################################################################
 #   установка начальных параметров
 
-w = 1./alpha - 1.
+w = 1. / alpha - 1.
 lp = iprn
 
 [f, g0, tt] = calcfg(x)
@@ -294,7 +294,7 @@ for itn = 1:maxitn
     #   вычисляем суперградиент в преобразованном пространстве,
     #   определяем направление подъёма
     g1 = B' * g0
-    g = B * g1/norm(g1)
+    g = B * g1 / norm(g1)
     normg = norm(g)
     #   одномерный подъём по направлению g:
     #       cal - счётчик шагов одномерного поиска,
@@ -302,10 +302,10 @@ for itn = 1:maxitn
     r = 1
     cal = 0
     deltax = 0
-    while ( r > 0. && cal <= 500 )
+    while ( r > 0. and cal <= 500 )
         cal = cal + 1
-        x = x + hs*g
-        deltax = deltax + hs*normg
+        x = x + hs * g
+        deltax = deltax + hs * normg
         [f, g1, tt] = calcfg(x)
         if f > ff
             ff = f
@@ -314,9 +314,9 @@ for itn = 1:maxitn
         #   если прошло nh шагов одномерного подъёма,
         #   то увеличиваем величину шага hs
         if mod(cal, nh) == 0
-            hs = hs*q2
+            hs = hs * q2
         end
-        r = g'*g1
+        r = g' * g1
     end
     #   если превышен лимит числа шагов одномерного подъёма, то выход
     if cal > 500
@@ -326,11 +326,11 @@ for itn = 1:maxitn
     #   если одномерный подъём занял один шаг,
     #   то уменьшаем величину шага hs
     if cal == 1
-        hs = hs*q1
+        hs = hs * q1
     end
     #   уточняем статистику и при необходимости выводим её
     ncals = ncals + cal
-    if itn==lp
+    if itn == lp
         fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
         lp = lp + iprn
     end
@@ -342,14 +342,14 @@ for itn = 1:maxitn
     #   пересчитываем матрицу преобразования пространства
     dg = B' * (g1 - g0)
     xi = dg / norm(dg)
-    B = B + w*(B*xi)*xi'
+    B = B + w * (B * xi) * xi'
     g0 = g1
     #   проверка изменения значения функционала, относительного
     #   либо абсолютного, на последних nsims шагах алгоритма
     vf = circshift(vf, 1)
     vf(1) = abs(ff - vf(1))
     if abs(ff) > 1
-        deltaf = sum(vf)/abs(ff)
+        deltaf = sum(vf) / abs(ff)
     else
         deltaf = sum(vf)
     end
@@ -372,7 +372,7 @@ envs = tt(ind, :)
 #   вывод результатов работы
 
 if iprn > 0
-    if rem(itn, iprn)~=0
+    if rem(itn, iprn) != 0
         fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
     end
     fprintf('#65s\n', HorLine)
@@ -390,7 +390,7 @@ end
 ################################################################################
 
 disp(' ')
-if ( tolmax < 0. && abs(tolmax/epsx) < 10 )
+if ( tolmax < 0. and abs(tolmax / epsx) < 10 )
     disp(' Абсолютное значение вычисленного максимума')
     disp('                          находится в пределах заданной точности')
     disp(' Перезапустите программу  с меньшими значениями  epsf и/или epsx')
