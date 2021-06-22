@@ -101,35 +101,29 @@ def tolsolvty(infA, supA, infb, supb, varargin):
 
     mi = size(infA, 1);  ni = size(infA, 2)
     ms = size(supA, 1);  ns = size(supA, 2)
-    if mi == ms   #   m - количество уравнений в системе
+    if mi == ms:   #   m - количество уравнений в системе
         m = ms
-    else
+    else:
         error('Количество строк в матрицах левых и правых концов неодинаково')
-    end
-    if ni == ns
-        n = ns    #   n - количество неизвестных переменных в системе
-    else
+    if ni == ns:
+        n = ns     #   n - количество неизвестных переменных в системе
+    else:
         error('Количество столбцов в матрицах левых и правых концов неодинаково')
-    end
 
     ki = size(infb, 1)
     ks = size(supb, 1)
-    if ki == ks
+    if ki == ks:
         k = ks
-    else
+    else:
         error('Количество компонент у векторов левых и правых концов неодинаково')
-    end
-    if k != m
+    if k != m:
         error('Размеры матрицы системы не соответствуют размерам правой части')
-    end
 
-    if ~all(all(infA <= supA))
+    if ~all(all(infA <= supA)):
         error('В матрице системы задан неправильный интервальный элемент')
-    end
 
-    if ~all(infb <= supb)
+    if ~all(infb <= supb):
         error('В векторе правой части задана неправильная интервальная компонента')
-    end
 
     ################################################################################
     #
@@ -164,30 +158,22 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     #
     #   переназначение параметров алгоритма, заданных пользователем
     #
-    if nargin >= 5
+    if nargin >= 5:
         iprn = ceil(varargin{1})
-        if nargin >= 6
+        if nargin >= 6:
             weight = varargin{2}
-            if size(weight, 1) != m
+            if size(weight, 1) != m:
                 error('Размер вектора весовых коэффициентов задан некорректно')
-            end
-            if any( weight <= 0 )
+            if any( weight <= 0 ):
                 error(' Вектор весовых коэффициентов должен быть положительным')
-            end
-            if nargin >= 7
+            if nargin >= 7:
                 epsf = varargin{3}
-                if nargin >= 8
+                if nargin >= 8:
                     epsx = varargin{4}
-                    if nargin >= 9
+                    if nargin >= 9:
                         epsg = varargin{5}
-                        if nargin >= 10
+                        if nargin >= 10:
                             maxitn = varargin{6}
-                        end
-                    end
-                end
-            end
-        end
-    end
 
     ################################################################################
     ################################################################################
@@ -219,12 +205,10 @@ def tolsolvty(infA, supA, infb, supb, varargin):
         x_nonneg = x >= 0
         dl = infA_mc .* x_neg + supA_mc .* x_nonneg
         ds = supA_mc .* x_neg + infA_mc .* x_nonneg
-        if -infs(mc) <= sups(mc)
+        if -infs(mc) <= sups(mc):
             g = weight(mc) * ds
-        else
+        else:
             g = -weight(mc) * dl
-        end
-        end
 
     ################################################################################
     ################################################################################
@@ -241,11 +225,10 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     minsv = min(sv)
     maxsv = max(sv)
 
-    if ( minsv != 0 and maxsv / minsv < 1.e+12 )
+    if ( minsv != 0 and maxsv / minsv < 1.e+12 ):
         x = Ac \ bc
-    else
+    else:
         x = zeros(n, 1)
-    end
 
     ################################################################################
     #   Рабочие массивы:
@@ -267,13 +250,12 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     ff = f ;  xx = x
     cal = 1;  ncals = 1
 
-    if iprn > 0
+    if iprn > 0:
         fprintf('\n\t#52s\n', TitLine)
         fprintf('#65s\n', HorLine)
         fprintf('\t#50s\n', TabLine)
         fprintf('#65s\n', HorLine)
         fprintf('\t#d\t#f\t#f\t#d\t#d\n', 0, f, ff, cal, ncals)
-    end
 
     ################################################################################
     #
@@ -284,13 +266,12 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     #       cal - количество вычислений функционала на текущем шаге
     #     ncals - общее количество вычислений целевого функционала
     #
-    for itn = 1:maxitn
+    for itn = 1:maxitn:
         vf(nsims) = ff
         #   критерий останова по норме суперградиента
-        if  norm(g0) < epsg
+        if  norm(g0) < epsg:
             ccode = 2
             break
-        end
         #   вычисляем суперградиент в преобразованном пространстве,
         #   определяем направление подъёма
         g1 = B' * g0
@@ -302,43 +283,36 @@ def tolsolvty(infA, supA, infb, supb, varargin):
         r = 1
         cal = 0
         deltax = 0
-        while ( r > 0. and cal <= 500 )
+        while ( r > 0. and cal <= 500 ):
             cal = cal + 1
             x = x + hs * g
             deltax = deltax + hs * normg
             [f, g1, tt] = calcfg(x)
-            if f > ff
+            if f > ff:
                 ff = f
                 xx = x
-            end
             #   если прошло nh шагов одномерного подъёма,
             #   то увеличиваем величину шага hs
-            if mod(cal, nh) == 0
+            if mod(cal, nh) == 0:
                 hs = hs * q2
-            end
             r = g' * g1
-        end
         #   если превышен лимит числа шагов одномерного подъёма, то выход
-        if cal > 500
+        if cal > 500:
             ccode = 5
             break
-        end
         #   если одномерный подъём занял один шаг,
         #   то уменьшаем величину шага hs
-        if cal == 1
+        if cal == 1:
             hs = hs * q1
-        end
         #   уточняем статистику и при необходимости выводим её
         ncals = ncals + cal
-        if itn == lp
+        if itn == lp:
             fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
             lp = lp + iprn
-        end
         #   если вариация аргумента в одномерном поиске мала, то выход
-        if deltax < epsx
+        if deltax < epsx:
             ccode = 3
             break
-        end
         #   пересчитываем матрицу преобразования пространства
         dg = B' * (g1 - g0)
         xi = dg / norm(dg)
@@ -348,17 +322,14 @@ def tolsolvty(infA, supA, infb, supb, varargin):
         #   либо абсолютного, на последних nsims шагах алгоритма
         vf = circshift(vf, 1)
         vf(1) = abs(ff - vf(1))
-        if abs(ff) > 1
+        if abs(ff) > 1:
             deltaf = sum(vf) / abs(ff)
-        else
+        else:
             deltaf = sum(vf)
-        end
-        if deltaf < epsf
+        if deltaf < epsf:
             ccode = 1
             break
-        end
         ccode = 4
-    end
 
     tolmax = ff
     argmax = xx
@@ -371,36 +342,31 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     ################################################################################
     #   вывод результатов работы
 
-    if iprn > 0
-        if rem(itn, iprn) != 0
+    if iprn > 0:
+        if rem(itn, iprn) != 0:
             fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
-        end
         fprintf('#65s\n', HorLine)
-    end
 
     ################################################################################
 
     disp(' ')
-    if tolmax >= 0
+    if tolmax >= 0:
         disp(' Допусковое множество решений интервальной линейной системы непусто ')
-    else
+    else:
         disp(' Допусковое множество решений интервальной линейной системы пусто ')
-    end
 
     ################################################################################
 
     disp(' ')
-    if ( tolmax < 0. and abs(tolmax / epsx) < 10 )
+    if ( tolmax < 0. and abs(tolmax / epsx) < 10 ):
         disp(' Абсолютное значение вычисленного максимума')
         disp('                          находится в пределах заданной точности')
         disp(' Перезапустите программу  с меньшими значениями  epsf и/или epsx')
         disp(' для получения большей информации о разрешимости рассматриваемой')
         disp(' задачи о допусках')
         disp(' ')
-    end
 
     ################################################################################
 
-    end
 
     ################################################################################
