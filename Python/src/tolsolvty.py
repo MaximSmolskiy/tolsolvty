@@ -1,4 +1,4 @@
-from numpy import size, all, ones, ceil, any, abs, maximum, min, argmin, newaxis, max, zeros, eye, finfo, mod, roll, sum, c_, arange, sort, argsort, remainder
+from numpy import size, all, newaxis, ones, ceil, any, abs, maximum, min, argmin, max, zeros, eye, finfo, mod, roll, sum, c_, arange, sort, argsort, remainder
 from numpy.linalg import svd, lstsq, norm
 
 
@@ -237,8 +237,8 @@ def tolsolvty(infA, supA, infb, supb, *varargin):
     #       g, g0, g1 - используются для хранения вспомогательных векторов,
     #           суперградиента минимизируемого функционала и др.
 
-    B = eye(n, n)                     # инициализируем единичной матрицей
-    vf = finfo(float).max * ones((nsims, 1))     # инициализируем самыми большими числами
+    B = eye(n, n)                                 # инициализируем единичной матрицей
+    vf = finfo(float).max * ones((nsims, 1))      # инициализируем самыми большими числами
 
     ################################################################################
     #   установка начальных параметров
