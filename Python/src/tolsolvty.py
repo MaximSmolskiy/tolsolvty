@@ -17,8 +17,8 @@ def tolsolvty(infA, supA, infb, supb, *varargin):
     #   о пустоте/непустоте допускового множества решений и диагностику работы.
     #
     #   Синтаксис вызова:
-    #       [tolmax,argmax,envs,ccode] = tolsolvty(infA,supA,infb,supb, ...
-    #                                           iprn,weight,epsf,epsx,epsg,maxitn)
+    #       [tolmax, argmax, envs, ccode] = tolsolvty(infA, supA, infb, supb,
+    #                                              iprn, weight, epsf, epsx, epsg, maxitn)
     #
     #   Обязательные входные аргументы функции:
     #        infA, supA - матрицы левых и правых концов интервальных коэффициентов
@@ -161,7 +161,7 @@ def tolsolvty(infA, supA, infb, supb, *varargin):
         iprn = ceil(varargin[0])
         if nargin >= 6:
             weight = varargin[1]
-            if size(weight, 1) != m:
+            if size(weight, 0) != m:
                 raise ValueError('Размер вектора весовых коэффициентов задан некорректно')
             if any(weight <= 0):
                 raise ValueError(' Вектор весовых коэффициентов должен быть положительным')
@@ -267,7 +267,7 @@ def tolsolvty(infA, supA, infb, supb, *varargin):
     #     ncals - общее количество вычислений целевого функционала
     #
     for itn in range(1, maxitn + 1):
-        vf[nsims - 1] = ff
+        vf[nsims - 1, 0] = ff
         #   критерий останова по норме суперградиента
         if norm(g0) < epsg:
             ccode = 2
@@ -321,7 +321,7 @@ def tolsolvty(infA, supA, infb, supb, *varargin):
         #   проверка изменения значения функционала, относительного
         #   либо абсолютного, на последних nsims шагах алгоритма
         vf = roll(vf, 1)
-        vf[0] = abs(ff - vf[0])
+        vf[0, 0] = abs(ff - vf[0, 0])
         if abs(ff) > 1:
             deltaf = sum(vf) / abs(ff)
         else:
