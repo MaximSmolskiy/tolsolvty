@@ -1,4 +1,8 @@
-def tolsolvty(infA, supA, infb, supb, varargin):
+from numpy import size, all, ones, abs, maximum, min, max, ceil, any, arange, newaxis, eye, finfo, zeros, argmin, mod, roll, c_, sort, argsort, remainder, sum
+from numpy.linalg import svd, lstsq, norm
+
+
+def tolsolvty(infA, supA, infb, supb, *varargin):
     #
     #   Вычисление максимума распознающего функционала допускового множества
     #   решений для интервальной системы линейных алгебраических уравнений.
@@ -89,62 +93,56 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     #       Т. 22, № 2. - С. 127-149.
     #
     ################################################################################
-    #
-    #   С.П. Шарый, ФИЦ ИВТ, НГУ, 2007-2019 гг.
-    #   М.Л. Смольский, СПбГПУ, 2019-2020 г.
-    #
-    ################################################################################
 
     #
     #   проверка корректности входных данных
     #
 
-    mi = size(infA, 1);  ni = size(infA, 2)
-    ms = size(supA, 1);  ns = size(supA, 2)
-    if mi == ms:   #   m - количество уравнений в системе
+    mi, ni = size(infA, 0), size(infA, 1)
+    ms, ns = size(supA, 0), size(supA, 1)
+    if mi == ms:   # m - количество уравнений в системе
         m = ms
     else:
-        error('Количество строк в матрицах левых и правых концов неодинаково')
+        raise ValueError('Количество строк в матрицах левых и правых концов неодинаково')
     if ni == ns:
-        n = ns     #   n - количество неизвестных переменных в системе
+        n = ns     # n - количество неизвестных переменных в системе
     else:
-        error('Количество столбцов в матрицах левых и правых концов неодинаково')
+        raise ValueError('Количество столбцов в матрицах левых и правых концов неодинаково')
 
-    ki = size(infb, 1)
-    ks = size(supb, 1)
+    ki = size(infb, 0)
+    ks = size(supb, 0)
     if ki == ks:
         k = ks
     else:
-        error('Количество компонент у векторов левых и правых концов неодинаково')
+        raise ValueError('Количество компонент у векторов левых и правых концов неодинаково')
     if k != m:
-        error('Размеры матрицы системы не соответствуют размерам правой части')
+        raise ValueError('Размеры матрицы системы не соответствуют размерам правой части')
 
-    if ~all(all(infA <= supA)):
-        error('В матрице системы задан неправильный интервальный элемент')
+    if not all(all(infA <= supA, 0)):
+        raise ValueError('В матрице системы задан неправильный интервальный элемент')
 
-    if ~all(infb <= supb):
-        error('В векторе правой части задана неправильная интервальная компонента')
+    if not all(infb <= supb):
+        raise ValueError('В векторе правой части задана неправильная интервальная компонента')
 
     ################################################################################
     #
     #   задание параметров алгоритма суперградиентного подъёма и прочих
     #
-    maxitn = 2000           #   ограничение на количество шагов алгоритма
-    nsims  = 30             #   допустимое количество одинаковых шагов
-    epsf = 1.e-6            #   допуск на изменение значения функционала
-    epsx = 1.e-6            #   допуск на изменение аргумента функционала
-    epsg = 1.e-6            #   допуск на норму суперградиента функционала
+    maxitn = 2000           # ограничение на количество шагов алгоритма
+    nsims = 30              # допустимое количество одинаковых шагов
+    epsf = 1.e-6            # допуск на изменение значения функционала
+    epsx = 1.e-6            # допуск на изменение аргумента функционала
+    epsg = 1.e-6            # допуск на норму суперградиента функционала
 
-    alpha = 2.3             #   коэффициент растяжения пространства в алгоритме
-    hs = 1.                 #   начальная величина шага одномерного поиска
-    nh = 3                  #   число одинаковых шагов одномерного поиска
-    q1 = 0.9                #   q1, q2 - параметры адаптивной регулировки
-    q2 = 1.1                #       шагового множителя
+    alpha = 2.3             # коэффициент растяжения пространства в алгоритме
+    hs = 1.                 # начальная величина шага одномерного поиска
+    nh = 3                  # число одинаковых шагов одномерного поиска
+    q1 = 0.9                # q1, q2 - параметры адаптивной регулировки
+    q2 = 1.1                # шагового множителя
 
-    iprn = 0                #   печать о ходе процесса через каждые iprn-итераций
-                            #   (если iprn < 0, то печать подавляется)
-    weight = ones(m, 1)     #   задание вектора весовых коэффициентов для образующих
-    format short g          #   формат вывода данных
+    iprn = 0                # печать о ходе процесса через каждые iprn-итераций
+    #                         (если iprn < 0, то печать подавляется)
+    weight = ones((m, 1))   # задание вектора весовых коэффициентов для образующих
 
     ################################################################################
     #
@@ -158,22 +156,23 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     #
     #   переназначение параметров алгоритма, заданных пользователем
     #
+    nargin = 4 + len(varargin)
     if nargin >= 5:
-        iprn = ceil(varargin{1})
+        iprn = ceil(varargin[0])
         if nargin >= 6:
-            weight = varargin{2}
+            weight = varargin[1]
             if size(weight, 1) != m:
-                error('Размер вектора весовых коэффициентов задан некорректно')
-            if any( weight <= 0 ):
-                error(' Вектор весовых коэффициентов должен быть положительным')
+                raise ValueError('Размер вектора весовых коэффициентов задан некорректно')
+            if any(weight <= 0):
+                raise ValueError(' Вектор весовых коэффициентов должен быть положительным')
             if nargin >= 7:
-                epsf = varargin{3}
+                epsf = varargin[2]
                 if nargin >= 8:
-                    epsx = varargin{4}
+                    epsx = varargin[3]
                     if nargin >= 9:
-                        epsg = varargin{5}
+                        epsg = varargin[4]
                         if nargin >= 10:
-                            maxitn = varargin{6}
+                            maxitn = varargin[5]
 
     ################################################################################
     ################################################################################
@@ -188,27 +187,28 @@ def tolsolvty(infA, supA, infb, supb, varargin):
         #   используются сокращённые формулы умножения интервальной матрицы
         #   на точечный вектор, через середину и радиус
         absx = abs(x)
-        Ac_x = Ac * x
-        Ar_absx = Ar * absx
+        Ac_x = Ac @ x
+        Ar_absx = Ar @ absx
         infs = bc - (Ac_x + Ar_absx)
         sups = bc - (Ac_x - Ar_absx)
-        tt = weight .* (br - max(abs(infs), abs(sups)))
+        tt = weight * (br - maximum(abs(infs), abs(sups)))
 
         #   сборка значения всего распознающего функционала
-        [f, mc] = min(tt)
+        [f, mc] = min(tt), argmin(tt)
 
         #   вычисление суперградиента той образующей распознающего функционала,
         #   на которой достигается предыдущий минимум
-        infA_mc = infA(mc, :)'
-        supA_mc = supA(mc, :)'
+        infA_mc = infA[[mc], :].conj().T
+        supA_mc = supA[[mc], :].conj().T
         x_neg = x < 0
         x_nonneg = x >= 0
-        dl = infA_mc .* x_neg + supA_mc .* x_nonneg
-        ds = supA_mc .* x_neg + infA_mc .* x_nonneg
-        if -infs(mc) <= sups(mc):
-            g = weight(mc) * ds
+        dl = infA_mc * x_neg + supA_mc * x_nonneg
+        ds = supA_mc * x_neg + infA_mc * x_nonneg
+        if -infs[mc, 0] <= sups[mc, 0]:
+            g = weight[mc, 0] * ds
         else:
-            g = -weight(mc) * dl
+            g = -weight[mc, 0] * dl
+        return f, g, tt
 
     ################################################################################
     ################################################################################
@@ -221,14 +221,14 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     Ar = 0.5 * (supA - infA)
     bc = 0.5 * (infb + supb)
     br = 0.5 * (supb - infb)
-    sv = svd(Ac)
+    sv = svd(Ac, compute_uv=False)[:, newaxis]
     minsv = min(sv)
     maxsv = max(sv)
 
-    if ( minsv != 0 and maxsv / minsv < 1.e+12 ):
-        x = Ac \ bc
+    if (minsv != 0 and maxsv / minsv < 1.e+12):
+        x = lstsq(Ac, bc, rcond=None)[0]
     else:
-        x = zeros(n, 1)
+        x = zeros((n, 1))
 
     ################################################################################
     #   Рабочие массивы:
@@ -237,8 +237,8 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     #       g, g0, g1 - используются для хранения вспомогательных векторов,
     #           суперградиента минимизируемого функционала и др.
 
-    B = eye(n, n)                     #   инициализируем единичной матрицей
-    vf = realmax * ones(nsims, 1)     #   инициализируем самыми большими числами
+    B = eye(n, n)                     # инициализируем единичной матрицей
+    vf = finfo(float).max * ones((nsims, 1))     # инициализируем самыми большими числами
 
     ################################################################################
     #   установка начальных параметров
@@ -247,15 +247,15 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     lp = iprn
 
     [f, g0, tt] = calcfg(x)
-    ff = f ;  xx = x
-    cal = 1;  ncals = 1
+    ff, xx = f, x
+    cal, ncals = 1, 1
 
     if iprn > 0:
-        fprintf('\n\t#52s\n', TitLine)
-        fprintf('#65s\n', HorLine)
-        fprintf('\t#50s\n', TabLine)
-        fprintf('#65s\n', HorLine)
-        fprintf('\t#d\t#f\t#f\t#d\t#d\n', 0, f, ff, cal, ncals)
+        print('\n\t%52s' % TitLine)
+        print('%65s' % HorLine)
+        print('\t%50s' % TabLine)
+        print('%65s' % HorLine)
+        print('\t%d\t%f\t%f\t%d\t%d' % (0, f, ff, cal, ncals))
 
     ################################################################################
     #
@@ -266,16 +266,16 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     #       cal - количество вычислений функционала на текущем шаге
     #     ncals - общее количество вычислений целевого функционала
     #
-    for itn = 1:maxitn:
-        vf(nsims) = ff
+    for itn in range(1, maxitn + 1):
+        vf[nsims - 1] = ff
         #   критерий останова по норме суперградиента
-        if  norm(g0) < epsg:
+        if norm(g0) < epsg:
             ccode = 2
             break
         #   вычисляем суперградиент в преобразованном пространстве,
         #   определяем направление подъёма
-        g1 = B' * g0
-        g = B * g1 / norm(g1)
+        g1 = B.conj().T @ g0
+        g = B @ g1 / norm(g1)
         normg = norm(g)
         #   одномерный подъём по направлению g:
         #       cal - счётчик шагов одномерного поиска,
@@ -283,7 +283,7 @@ def tolsolvty(infA, supA, infb, supb, varargin):
         r = 1
         cal = 0
         deltax = 0
-        while ( r > 0. and cal <= 500 ):
+        while (r > 0. and cal <= 500):
             cal = cal + 1
             x = x + hs * g
             deltax = deltax + hs * normg
@@ -295,7 +295,7 @@ def tolsolvty(infA, supA, infb, supb, varargin):
             #   то увеличиваем величину шага hs
             if mod(cal, nh) == 0:
                 hs = hs * q2
-            r = g' * g1
+            r = g.conj().T @ g1
         #   если превышен лимит числа шагов одномерного подъёма, то выход
         if cal > 500:
             ccode = 5
@@ -307,21 +307,21 @@ def tolsolvty(infA, supA, infb, supb, varargin):
         #   уточняем статистику и при необходимости выводим её
         ncals = ncals + cal
         if itn == lp:
-            fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
+            print('\t%d\t%f\t%f\t%d\t%d' % (itn, f, ff, cal, ncals))
             lp = lp + iprn
         #   если вариация аргумента в одномерном поиске мала, то выход
         if deltax < epsx:
             ccode = 3
             break
         #   пересчитываем матрицу преобразования пространства
-        dg = B' * (g1 - g0)
+        dg = B.conj().T @ (g1 - g0)
         xi = dg / norm(dg)
-        B = B + w * (B * xi) * xi'
+        B = B + w * (B @ xi) @ xi.conj().T
         g0 = g1
         #   проверка изменения значения функционала, относительного
         #   либо абсолютного, на последних nsims шагах алгоритма
-        vf = circshift(vf, 1)
-        vf(1) = abs(ff - vf(1))
+        vf = roll(vf, 1)
+        vf[0] = abs(ff - vf[0])
         if abs(ff) > 1:
             deltaf = sum(vf) / abs(ff)
         else:
@@ -335,38 +335,39 @@ def tolsolvty(infA, supA, infb, supb, varargin):
     argmax = xx
 
     #   сортируем образующие распознающего функционала по возрастанию
-    tt = [(1:m)', tt]
-    [z, ind] = sort(tt(:, 2))
-    envs = tt(ind, :)
+    tt = c_[arange(1, m + 1)[newaxis].conj().T, tt]
+    [z, ind] = sort(tt[:, [1]]), argsort(tt[:, 1])
+    envs = tt[ind, :]
 
     ################################################################################
     #   вывод результатов работы
 
     if iprn > 0:
-        if rem(itn, iprn) != 0:
-            fprintf('\t#d\t#f\t#f\t#d\t#d\n', itn, f, ff, cal, ncals)
-        fprintf('#65s\n', HorLine)
+        if remainder(itn, iprn) != 0:
+            print('\t%d\t%f\t%f\t%d\t%d' % (itn, f, ff, cal, ncals))
+        print('%65s' % HorLine)
 
     ################################################################################
 
-    disp(' ')
+    print(' ')
     if tolmax >= 0:
-        disp(' Допусковое множество решений интервальной линейной системы непусто ')
+        print(' Допусковое множество решений интервальной линейной системы непусто ')
     else:
-        disp(' Допусковое множество решений интервальной линейной системы пусто ')
+        print(' Допусковое множество решений интервальной линейной системы пусто ')
 
     ################################################################################
 
-    disp(' ')
-    if ( tolmax < 0. and abs(tolmax / epsx) < 10 ):
-        disp(' Абсолютное значение вычисленного максимума')
-        disp('                          находится в пределах заданной точности')
-        disp(' Перезапустите программу  с меньшими значениями  epsf и/или epsx')
-        disp(' для получения большей информации о разрешимости рассматриваемой')
-        disp(' задачи о допусках')
-        disp(' ')
+    print(' ')
+    if (tolmax < 0. and abs(tolmax / epsx) < 10):
+        print(' Абсолютное значение вычисленного максимума')
+        print('                          находится в пределах заданной точности')
+        print(' Перезапустите программу  с меньшими значениями  epsf и/или epsx')
+        print(' для получения большей информации о разрешимости рассматриваемой')
+        print(' задачи о допусках')
+        print(' ')
 
     ################################################################################
 
+    return tolmax, argmax, envs, ccode
 
     ################################################################################
