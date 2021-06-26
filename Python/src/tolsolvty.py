@@ -1,4 +1,4 @@
-from numpy import size, all, ones, abs, maximum, min, max, ceil, any, arange, newaxis, eye, finfo, zeros, argmin, mod, roll, c_, sort, argsort, remainder, sum
+from numpy import size, all, ones, ceil, any, abs, maximum, min, argmin, newaxis, max, zeros, eye, finfo, mod, roll, sum, c_, arange, sort, argsort, remainder
 from numpy.linalg import svd, lstsq, norm
 
 
@@ -118,7 +118,7 @@ def tolsolvty(infA, supA, infb, supb, *varargin):
     if k != m:
         raise ValueError('Размеры матрицы системы не соответствуют размерам правой части')
 
-    if not all(all(infA <= supA, 0)):
+    if not all(all(infA <= supA, 0)[newaxis]):
         raise ValueError('В матрице системы задан неправильный интервальный элемент')
 
     if not all(infb <= supb):
@@ -336,8 +336,8 @@ def tolsolvty(infA, supA, infb, supb, *varargin):
 
     #   сортируем образующие распознающего функционала по возрастанию
     tt = c_[arange(1, m + 1)[newaxis].conj().T, tt]
-    [z, ind] = sort(tt[:, [1]]), argsort(tt[:, 1])
-    envs = tt[ind, :]
+    [z, ind] = sort(tt[:, [1]], 0), argsort(tt[:, [1]], 0)
+    envs = tt[ind[:, 0], :]
 
     ################################################################################
     #   вывод результатов работы
