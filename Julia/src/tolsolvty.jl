@@ -208,10 +208,10 @@ function calcfg(x)
     Ar_absx = Ar * absx;
     infs = bc - (Ac_x + Ar_absx);
     sups = bc - (Ac_x - Ar_absx);
-    tt = weight .* (br - max(abs(infs), abs(sups)));
+    tt = weight .* (br - max.(abs(infs), abs(sups)));
   
     #   сборка значения всего распознающего функционала 
-    (f, mc) = min(tt);
+    (f, mc) = minimum(tt);
   
     #   вычисление суперградиента той образующей распознающего функционала, 
     #   на которой достигается предыдущий минимум 
@@ -240,8 +240,8 @@ Ar = 0.5*(supA - infA);
 bc = 0.5*(infb + supb);
 br = 0.5*(supb - infb);
 sv = svd(Ac).S;
-minsv = min(sv);
-maxsv = max(sv);
+minsv = minimum(sv);
+maxsv = maximum(sv);
   
 if ( minsv!=0 && maxsv/minsv < 1.e+12 ) 
     x = Ac\bc; 
