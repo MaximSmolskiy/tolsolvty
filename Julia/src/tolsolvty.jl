@@ -119,15 +119,15 @@ if ki==ks
 else 
     error("Количество компонент у векторов левых и правых концов неодинаково")
 end
-if k~=m 
+if k!=m 
     error("Размеры матрицы системы не соответствуют размерам правой части") 
 end
   
-if ~all(all(infA <= supA)) 
+if !all(all(infA <= supA)) 
     error("В матрице системы задан неправильный интервальный элемент") 
 end 
   
-if ~all(infb <= supb) 
+if !all(infb <= supb) 
     error("В векторе правой части задана неправильная интервальная компонента") 
 end 
     
@@ -167,7 +167,7 @@ if nargin >= 5
     iprn = ceil(varargin{1}); 
     if nargin >= 6 
         weight = varargin{2}; 
-        if size(weight,1)~=m 
+        if size(weight,1)!=m 
             error("Размер вектора весовых коэффициентов задан некорректно") 
         end 
         if any( weight <= 0 ) 
@@ -240,7 +240,7 @@ sv = svd(Ac);
 minsv = min(sv);
 maxsv = max(sv);
   
-if ( minsv~=0 && maxsv/minsv < 1.e+12 ) 
+if ( minsv!=0 && maxsv/minsv < 1.e+12 ) 
     x = Ac\bc; 
 else
     x = zeros(n,1);
@@ -371,7 +371,7 @@ envs = tt(ind,:);
 #   вывод результатов работы 
    
 if iprn > 0
-    if rem(itn,iprn)~=0
+    if rem(itn,iprn)!=0
         fprintf("\t#d\t#f\t#f\t#d\t#d\n",itn,f,ff,cal,ncals); 
     end
     fprintf("#65s\n",HorLine); 
