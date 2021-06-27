@@ -1,4 +1,4 @@
-function tolsolvty(infA,supA,infb,supb,varargin) 
+function tolsolvty(infA,supA,infb,supb,varargin...) 
 #  
 #   Вычисление максимума распознающего функционала допускового множества 
 #   решений для интервальной системы линейных алгебраических уравнений. 
