@@ -319,7 +319,7 @@ for itn = 1:maxitn;
         if mod(cal,nh) == 0  
             hs = hs*q2; 
         end 
-        r = g'*g1; 
+        r = first(g'*g1); 
     end 
     #   если превышен лимит числа шагов одномерного подъёма, то выход
     if cal > 500 
