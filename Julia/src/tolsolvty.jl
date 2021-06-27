@@ -212,16 +212,16 @@ function calcfg(x)
   
     #   вычисление суперградиента той образующей распознающего функционала, 
     #   на которой достигается предыдущий минимум 
-    infA_mc = infA(mc, :)'; 
-    supA_mc = supA(mc, :)'; 
+    infA_mc = infA[mc, :]'; 
+    supA_mc = supA[mc, :]'; 
     x_neg = x < 0; 
     x_nonneg = x >= 0; 
     dl = infA_mc .* x_neg + supA_mc .* x_nonneg; 
     ds = supA_mc .* x_neg + infA_mc .* x_nonneg; 
-    if -infs(mc) <= sups(mc) 
-        g = weight(mc) * ds; 
+    if -infs[mc] <= sups[mc] 
+        g = weight[mc] * ds; 
     else 
-        g = -weight(mc) * dl; 
+        g = -weight[mc] * dl; 
     end 
 end 
   
@@ -284,7 +284,7 @@ end
 #     ncals - общее количество вычислений целевого функционала
 #  
 for itn = 1:maxitn;
-    vf(nsims) = ff;
+    vf[nsims] = ff;
     #   критерий останова по норме суперградиента
     if  norm(g0) < epsg
         ccode = 2;  
@@ -346,7 +346,7 @@ for itn = 1:maxitn;
     #   проверка изменения значения функционала, относительного 
     #   либо абсолютного, на последних nsims шагах алгоритма
     vf = circshift(vf,1);
-    vf(1) = abs(ff - vf(1)); 
+    vf[1] = abs(ff - vf[1]); 
     if abs(ff) > 1
         deltaf = sum(vf)/abs(ff);
     else 
