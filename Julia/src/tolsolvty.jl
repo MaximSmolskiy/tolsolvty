@@ -123,11 +123,11 @@ if k!=m
     error("Размеры матрицы системы не соответствуют размерам правой части") 
 end
   
-if !all(all(infA <= supA)) 
+if !all(all!(ones(Integer,1,n),infA .<= supA)) 
     error("В матрице системы задан неправильный интервальный элемент") 
 end 
   
-if !all(infb <= supb) 
+if !all(infb .<= supb) 
     error("В векторе правой части задана неправильная интервальная компонента") 
 end 
     
@@ -170,7 +170,7 @@ if nargin >= 5
         if size(weight,1)!=m 
             error("Размер вектора весовых коэффициентов задан некорректно") 
         end 
-        if any( weight <= 0 ) 
+        if any( weight .<= 0 ) 
             error(" Вектор весовых коэффициентов должен быть положительным") 
         end 
         if nargin >= 7 
@@ -214,8 +214,8 @@ function calcfg(x)
     #   на которой достигается предыдущий минимум 
     infA_mc = infA[mc, :]'; 
     supA_mc = supA[mc, :]'; 
-    x_neg = x < 0; 
-    x_nonneg = x >= 0; 
+    x_neg = x .< 0; 
+    x_nonneg = x .>= 0; 
     dl = infA_mc .* x_neg + supA_mc .* x_nonneg; 
     ds = supA_mc .* x_neg + infA_mc .* x_nonneg; 
     if -infs[mc] <= sups[mc] 
