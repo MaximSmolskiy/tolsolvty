@@ -237,7 +237,7 @@ Ac = 0.5*(infA + supA);
 Ar = 0.5*(supA - infA);
 bc = 0.5*(infb + supb);
 br = 0.5*(supb - infb);
-sv = svd(Ac);
+sv = svd(Ac).S;
 minsv = min(sv);
 maxsv = max(sv);
   
