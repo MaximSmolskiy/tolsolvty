@@ -1,3 +1,5 @@
+using LinearAlgebra: svd 
+  
 function tolsolvty(infA,supA,infb,supb,varargin...) 
 #  
 #   Вычисление максимума распознающего функционала допускового множества 
