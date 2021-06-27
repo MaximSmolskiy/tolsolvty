@@ -203,12 +203,12 @@ function calcfg(x)
     #   для быстрого вычисления образующих распознающего функционала
     #   используются сокращённые формулы умножения интервальной матрицы
     #   на точечный вектор, через середину и радиус 
-    absx = abs(x);
+    absx = abs.(x);
     Ac_x = Ac * x;
     Ar_absx = Ar * absx;
     infs = bc - (Ac_x + Ar_absx);
     sups = bc - (Ac_x - Ar_absx);
-    tt = weight .* (br - max.(abs(infs), abs(sups)));
+    tt = weight .* (br - max.(abs.(infs), abs.(sups)));
   
     #   сборка значения всего распознающего функционала 
     (f, mc) = minimum(tt);
