@@ -13,7 +13,7 @@ function tolsolvty(infA,supA,infb,supb,varargin)
 #   о пустоте/непустоте допускового множества решений и диагностику работы. 
 #  
 #   Синтаксис вызова:
-#       [tolmax,argmax,envs,ccode] = tolsolvty(infA,supA,infb,supb, ... 
+#       (tolmax,argmax,envs,ccode) = tolsolvty(infA,supA,infb,supb, ... 
 #                                           iprn,weight,epsf,epsx,epsg,maxitn) 
 #  
 #   Обязательные входные аргументы функции: 
@@ -208,7 +208,7 @@ function calcfg(x)
     tt = weight .* (br - max(abs(infs), abs(sups)));
   
     #   сборка значения всего распознающего функционала 
-    [f, mc] = min(tt);
+    (f, mc) = min(tt);
   
     #   вычисление суперградиента той образующей распознающего функционала, 
     #   на которой достигается предыдущий минимум 
@@ -262,7 +262,7 @@ vf = realmax*ones(nsims,1);     #   инициализируем самыми б
 w = 1.0/alpha - 1.;
 lp = iprn; 
   
-[f, g0, tt] = calcfg(x); 
+(f, g0, tt) = calcfg(x); 
 ff = f ;  xx = x;
 cal = 1;  ncals = 1; 
   
@@ -305,7 +305,7 @@ for itn = 1:maxitn;
         cal = cal + 1; 
         x = x + hs*g; 
         deltax = deltax + hs*normg; 
-        [f, g1, tt] = calcfg(x); 
+        (f, g1, tt) = calcfg(x); 
         if f > ff 
             ff = f; 
             xx = x; 
@@ -364,7 +364,7 @@ argmax = xx;
   
 #   сортируем образующие распознающего функционала по возрастанию 
 tt = [(1:m)', tt];
-[z,ind] = sort(tt(:,2));
+(z,ind) = sort(tt(:,2));
 envs = tt(ind,:);
   
 ################################################################################
