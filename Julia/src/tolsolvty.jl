@@ -1,4 +1,4 @@
-using LinearAlgebra: svd, I 
+using LinearAlgebra: svd, I, norm 
   
 function tolsolvty(infA,supA,infb,supb,varargin...) 
 #  
