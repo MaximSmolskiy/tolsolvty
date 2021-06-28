@@ -15,7 +15,7 @@ function tolsolvty(infA,supA,infb,supb,varargin...)
 #   о пустоте/непустоте допускового множества решений и диагностику работы. 
 #  
 #   Синтаксис вызова:
-#       (tolmax,argmax,envs,ccode) = tolsolvty(infA,supA,infb,supb, ... 
+#       (tolmax,argmax,envs,ccode) = tolsolvty(infA,supA,infb,supb, 
 #                                           iprn,weight,epsf,epsx,epsg,maxitn) 
 #  
 #   Обязательные входные аргументы функции: 
