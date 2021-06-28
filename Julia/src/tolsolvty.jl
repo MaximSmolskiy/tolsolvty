@@ -162,9 +162,9 @@ TabLine = "Шаг        Tol(x)         Tol(xx)   ВычФун/шаг  ВычФ�
 # 
 nargin = 4 + length(varargin) 
 if nargin >= 5 
-    iprn = ceil(varargin{1}); 
+    iprn = ceil(varargin[1]); 
     if nargin >= 6 
-        weight = varargin{2}; 
+        weight = varargin[2]; 
         if size(weight,1)!=m 
             error("Размер вектора весовых коэффициентов задан некорректно") 
         end 
@@ -172,13 +172,13 @@ if nargin >= 5
             error(" Вектор весовых коэффициентов должен быть положительным") 
         end 
         if nargin >= 7 
-            epsf = varargin{3}; 
+            epsf = varargin[3]; 
             if nargin >= 8 
-                epsx = varargin{4}; 
+                epsx = varargin[4]; 
                 if nargin >= 9 
-                    epsg = varargin{5}; 
+                    epsg = varargin[5]; 
                     if nargin >= 10 
-                        maxitn = varargin{6}; 
+                        maxitn = varargin[6]; 
                     end
                 end
             end
