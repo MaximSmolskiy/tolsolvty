@@ -211,12 +211,12 @@ function calcfg(x)
     tt = weight .* (br - max.(abs.(infs), abs.(sups)));
   
     #   сборка значения всего распознающего функционала 
-    (f, mc) = minimum(tt), argmin(tt);
+    (f, mc) = minimum(tt), argmin(tt[:]);
   
     #   вычисление суперградиента той образующей распознающего функционала, 
     #   на которой достигается предыдущий минимум 
-    infA_mc = infA[mc, :]'; 
-    supA_mc = supA[mc, :]'; 
+    infA_mc = infA[[mc], :]'; 
+    supA_mc = supA[[mc], :]'; 
     x_neg = x .< 0; 
     x_nonneg = x .>= 0; 
     dl = infA_mc .* x_neg + supA_mc .* x_nonneg; 
