@@ -2,6 +2,7 @@
 
 * Реализации [tolsolvty](http://www.nsc.ru/interval/):
   * [GNU Octave](GNU%20Octave) - [GNU Octave](https://www.gnu.org/software/octave/) реализации
+  * [Julia](Julia) - [Julia](https://julialang.org) реализации
   * [MATLAB](MATLAB) - [MATLAB](https://www.mathworks.com/products/matlab.html) реализации
   * [Python](Python) - [Python](https://www.python.org) реализации
   * [Scilab](Scilab) - [Scilab](https://www.scilab.org) реализации
