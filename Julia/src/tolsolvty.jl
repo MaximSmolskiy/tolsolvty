@@ -266,11 +266,11 @@ ff = f ;  xx = x;
 cal = 1;  ncals = 1; 
   
 if iprn > 0 
-    fprintf("\n\t#52s\n",TitLine); 
-    fprintf("#65s\n",HorLine); 
-    fprintf("\t#50s\n",TabLine); 
-    fprintf("#65s\n",HorLine); 
-    fprintf("\t#d\t#f\t#f\t#d\t#d\n",0,f,ff,cal,ncals); 
+    @printf("\n\t%52s\n",TitLine); 
+    @printf("%65s\n",HorLine); 
+    @printf("\t%50s\n",TabLine); 
+    @printf("%65s\n",HorLine); 
+    @printf("\t%d\t%f\t%f\t%d\t%d\n",0,f,ff,cal,ncals); 
 end
   
 ################################################################################
@@ -330,7 +330,7 @@ for itn = 1:maxitn;
     #   уточняем статистику и при необходимости выводим её
     ncals = ncals + cal;
     if itn==lp
-        fprintf("\t#d\t#f\t#f\t#d\t#d\n",itn,f,ff,cal,ncals); 
+        @printf("\t%d\t%f\t%f\t%d\t%d\n",itn,f,ff,cal,ncals); 
         lp = lp + iprn;
     end
     #   если вариация аргумента в одномерном поиске мала, то выход
@@ -372,9 +372,9 @@ envs = tt[ind,:];
    
 if iprn > 0
     if rem(itn,iprn)!=0
-        fprintf("\t#d\t#f\t#f\t#d\t#d\n",itn,f,ff,cal,ncals); 
+        @printf("\t%d\t%f\t%f\t%d\t%d\n",itn,f,ff,cal,ncals); 
     end
-    fprintf("#65s\n",HorLine); 
+    @printf("%65s\n",HorLine); 
 end
   
 ################################################################################
